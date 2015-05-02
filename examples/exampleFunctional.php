@@ -37,24 +37,32 @@ function onGetProfilePicture($from, $target, $type, $data)
         $filename = $target . ".jpg";
     }
 
-    $filename = WhatsProt::PICTURES_FOLDER. "/" . $filename;
+    $filename = Constants::PICTURES_FOLDER. "/" . $filename;
 
     file_put_contents($filename, $data);
 
-    echo "- Profile picture saved in " . WhatsProt::PICTURES_FOLDER. "/" . $filename . "\n";
+    echo "- Profile picture saved in " . Constants::PICTURES_FOLDER. "/" . $filename . "\n";
 }
 
-function onPresenceReceived($username, $from, $type)
+function onPresenceAvailable($username, $from)
 {
-    printf("<%s is %s>\n\n",
-        str_replace(array("@s.whatsapp.net","@g.us"), "", $from),
-        ($type == 'available') ? 'online' : 'offline');
+    $dFrom = str_replace(array("@s.whatsapp.net","@g.us"), "", $from);
+    echo "<$dFrom is online>\n\n";
+}
+
+function onPresenceUnavailable($username, $from, $last)
+{
+    $dFrom = str_replace(array("@s.whatsapp.net","@g.us"), "", $from);
+    echo "<$dFrom is offline>\n\n";
 }
 
 echo "[] Logging in as '$nickname' ($username)\n";
 //Create the whatsapp object and setup a connection.
 $w = new WhatsProt($username, $nickname, $debug);
 $w->connect();
+
+// Now loginWithPassword function sends Nickname and (Available) Presence
+$w->loginWithPassword($password);
 
 //Retrieve large profile picture. Output is in /src/php/pictures/ (you need to bind a function
 //to the event onProfilePicture so the script knows what to do.
@@ -63,10 +71,8 @@ $w->sendGetProfilePicture($target, true);
 
 //Print when the user goes online/offline (you need to bind a function to the event onPressence
 //so the script knows what to do)
-$w->eventManager()->bind("onPresence", "onPresenceReceived");
-
-// Now loginWithPassword function sends Nickname and (Available) Presence
-$w->loginWithPassword($password);
+$w->eventManager()->bind("onPresenceAvailable", "onPresenceAvailable");
+$w->eventManager()->bind("onPresenceUnavailable", "onPresenceUnavailable");
 
 echo "[*] Connected to WhatsApp\n\n";
 

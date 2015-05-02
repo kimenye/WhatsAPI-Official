@@ -40,19 +40,23 @@ function fgets_u($pStdn)
     return null;
 }
 
-function onPresenceReceived($username, $from, $type)
+function onPresenceAvailable($username, $from)
 {
     $dFrom = str_replace(array("@s.whatsapp.net","@g.us"), "", $from);
-    if($type == "available")
-        echo "<$dFrom is online>\n\n";
-    else
-        echo "<$dFrom is offline>\n\n";
+    echo "<$dFrom is online>\n\n";
+}
+
+function onPresenceUnavailable($username, $from, $last)
+{
+    $dFrom = str_replace(array("@s.whatsapp.net","@g.us"), "", $from);
+    echo "<$dFrom is offline>\n\n";
 }
 
 echo "[] logging in as '$nickname' ($username)\n";
 $w = new WhatsProt($username, $nickname, $debug);
 
-$w->eventManager()->bind("onPresence", "onPresenceReceived");
+$w->eventManager()->bind("onPresenceAvailable", "onPresenceAvailable");
+$w->eventManager()->bind("onPresenceUnavailable", "onPresenceUnavailable");
 
 $w->connect(); // Nos conectamos a la red de WhatsApp
 $w->loginWithPassword($password); // Iniciamos sesion con nuestra contraseña

@@ -1,10 +1,10 @@
-# WhatsAPI
+# Chat API
 
 Interface to WhatsApp Messenger
 
-**Read the [wiki](https://github.com/mgp25/WhatsAPI-Official/wiki)** and previous issues before opening a new one! Maybe your issue is already answered.
+**Read the [wiki](https://github.com/mgp25/Chat-API/wiki)** and previous issues before opening a new one! Maybe your issue is already answered.
 
-**[WhatsApp incoming updates log](https://github.com/mgp25/WhatsAPI-Official/wiki/WhatsApp-incoming-updates)**
+**[WhatsApp incoming updates log](https://github.com/mgp25/Chat-API/wiki/WhatsApp-incoming-updates)**
 
 ----------
 
@@ -15,10 +15,6 @@ Interface to WhatsApp Messenger
 - [SikiFn](https://github.com/SikiFn)
 - [0xTryCatch](https://github.com/0xTryCatch)
 - [Shirioko](https://github.com/shirioko)
-
-[![Paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KN6L7WMU7VM56)
-
-**Bitcoin:** 15NejBDahfe1eLAPSJh4iMfYLHYuKDrwJ2
 
 
 ### Update October 7th, 2014
