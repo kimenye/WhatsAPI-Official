@@ -3307,10 +3307,11 @@ class WhatsProt
                 $this->eventManager()->fire("onCallReceived",
                 array(
                     $this->phoneNumber,
-                    $child->getAttribute("from"),
-                    $child->getAttribute("id"),
-                    $child->getAttribute("notify"),
-                    $child->getAttribute("t")
+                    $node->getAttribute("from"),
+                    $node->getAttribute("id"),
+                    $node->getAttribute("notify"),
+                    $node->getAttribute("t"),
+                    $node->getChild(0)->getAttribute("call-id")
                 ));
             }
             else
