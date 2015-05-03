@@ -37,6 +37,7 @@ abstract class AllEvents
     }
 
     //Adding to this list? Please put them in alphabetical order!
+    public function onCallReceived($mynumber, $from, $id, $notify, $time) {}
     public function onClose($mynumber, $error) {}
     public function onCodeRegister($mynumber, $login, $password, $type, $expiration, $kind, $price, $cost, $currency, $price_expiration) {}
     public function onCodeRegisterFailed($mynumber, $status, $reason, $retry_after) {}

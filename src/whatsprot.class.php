@@ -3303,6 +3303,15 @@ class WhatsProt
             {
                 $callId = $node->getChild(0)->getAttribute("call-id");
                 $this->sendReceipt($node, null, null, $callId);
+
+                $this->eventManager()->fire("onCallReceived",
+                array(
+                    $this->phoneNumber,
+                    $child->getAttribute("from"),
+                    $child->getAttribute("id"),
+                    $child->getAttribute("notify"),
+                    $child->getAttribute("t")
+                ));
             }
             else
             {
