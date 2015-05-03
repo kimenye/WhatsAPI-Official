@@ -2618,13 +2618,13 @@ class WhatsProt
                 }
 
                 if ($autoReceipt) {
-                    $this->sendMessageReceived($node, $type, $author);
+                    $this->sendReceipt($node, $type, $author);
                 }
             }
             if ($node->getAttribute("type") == "text" && $node->getChild(0)->getTag() == 'enc') {
                 // TODO
                 if ($autoReceipt) {
-                    $this->sendMessageReceived($node, $type);
+                    $this->sendReceipt($node, $type);
                 }
             }
             if ($node->getAttribute("type") == "media" && $node->getChild('media') != null) {
@@ -2777,7 +2777,7 @@ class WhatsProt
                 }
 
                 if ($autoReceipt) {
-                    $this->sendMessageReceived($node, $type);
+                    $this->sendReceipt($node, $type);
                 }
             }
             if ($node->getChild('received') != null) {
@@ -3297,6 +3297,19 @@ class WhatsProt
             }
             $this->sendAck($node, 'notification');
         }
+        if ($node->getTag() == "call")
+        {
+            if ($node->getChild(0)->getTag() == "offer")
+            {
+                $callId = $node->getChild(0)->getAttribute("call-id");
+                $this->sendReceipt($node, null, null, $callId);
+            }
+            else
+            {
+                $this->sendAck($node, 'call');
+            }
+
+        }
         if ($node->getTag() == "ib")
         {
             foreach($node->getChildren() as $child)
@@ -3782,11 +3795,11 @@ class WhatsProt
     /**
      * Tell the server we received the message.
      *
-     * @param ProtocolNode $msg The ProtocolTreeNode that contains the message.
+     * @param ProtocolNode $node The ProtocolTreeNode that contains the message.
      * @param string       $type
      * @param string       $participant
      */
-    protected function sendMessageReceived($msg, $type = "read", $participant = null)
+    protected function sendReceipt($node, $type = "read", $participant = null, $callId = null)
     {
         $messageHash = array();
         if ($type == "read") {
@@ -3795,16 +3808,24 @@ class WhatsProt
         if ($participant != null) {
             $messageHash["participant"] = $participant;
         }
-        $messageHash["to"] = $msg->getAttribute("from");
-        $messageHash["id"] = $msg->getAttribute("id");
+        $messageHash["to"] = $node->getAttribute("from");
+        $messageHash["id"] = $node->getAttribute("id");
 
-        $messageNode = new ProtocolNode("receipt", $messageHash, null, null);
+        if ($callId != null)
+        {
+            $offerNode = new ProtocolNode("offer", array("call-id" => $callId), null, null);
+            $messageNode = new ProtocolNode("receipt", $messageHash, array($offerNode), null);
+        }
+        else
+        {
+            $messageNode = new ProtocolNode("receipt", $messageHash, null, null);
+        }
         $this->sendNode($messageNode);
         $this->eventManager()->fire("onSendMessageReceived",
             array(
                 $this->phoneNumber,
-                $msg->getAttribute("id"),
-                $msg->getAttribute("from"),
+                $node->getAttribute("id"),
+                $node->getAttribute("from"),
                 $type
             ));
     }
