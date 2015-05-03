@@ -1930,6 +1930,30 @@ class WhatsProt
         return $this->sendBroadcast($targets, $mediaNode, "media");
     }
 
+
+    /**
+     * Rejects a call
+     *
+     * @param array  $to      Phone number.
+     * @param string $id      The main node id
+     * @param string $callId  The call-id
+     */
+    public function rejectCall($to, $id, $callId)
+    {
+        $rejectNode = new ProtocolNode("reject",
+            array(
+              "call-id" => $callId
+            ), null, null);
+
+        $callNode = new ProtocolNode("call",
+            array(
+              "id" => $id,
+              "to" => $this->getJID($to)
+            ), array($rejectNode), null);
+
+        $this->sendNode($callNode);
+    }
+
     /**
      * Sets the bind of the new message.
      *
