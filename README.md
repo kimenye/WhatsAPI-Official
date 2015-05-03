@@ -19,6 +19,7 @@ For new WhatsApp updates check **[WhatsApp incoming updates log](https://github.
 Also Ahmed Moh'd (fb.com/ahmed.mhd) and Ali Hubail (@hubail) for making this project possible.
 
 And everyone that contributes to it.
+
 ----------
 
 ### What is WhatsApp?
