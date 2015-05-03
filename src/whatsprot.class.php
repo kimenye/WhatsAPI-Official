@@ -3167,7 +3167,31 @@ class WhatsProt
                     //TODO
                     break;
                 case "contacts":
-                    //TODO
+                    $notification = $node->getChild(0)->getTag();
+                    if ($notification == 'add')
+                    {
+                        $this->eventManager()->fire("onNumberWasAdded",
+                            array(
+                                $this->phoneNumber,
+                                $node->getChild(0)->getAttribute('jid')
+                        ));
+                    }
+                    elseif ($notification == 'remove')
+                    {
+                        $this->eventManager()->fire("onNumberWasRemoved",
+                            array(
+                                $this->phoneNumber,
+                                $node->getChild(0)->getAttribute('jid')
+                        ));
+                    }
+                    elseif ($notification == 'update')
+                    {
+                        $this->eventManager()->fire("onNumberWasUpdated",
+                            array(
+                                $this->phoneNumber,
+                                $node->getChild(0)->getAttribute('jid')
+                        ));
+                    }
                     break;
                 case "encrypt":
                     $value = $node->getChild(0)->getAttribute('value');

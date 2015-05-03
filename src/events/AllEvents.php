@@ -94,6 +94,9 @@ abstract class AllEvents
     public function onMessagePaused($mynumber, $from, $id, $type, $time) {}
     public function onMessageReceivedClient($mynumber, $from, $id, $type, $time, $participant) {}
     public function onMessageReceivedServer($mynumber, $from, $id, $type, $time) {}
+    public function onNumberWasAdded($mynumber, $jid) {}
+    public function onNumberWasRemoved($mynumber, $jid) {}
+    public function onNumberWasUpdated($mynumber, $jid) {}
     public function onPaidAccount($mynumber, $author, $kind, $status, $creation, $expiration) {}
     public function onPaymentRecieved($mynumber, $kind, $status, $creation, $expiration) {}
     public function onPing($mynumber, $id) {}
