@@ -3316,8 +3316,20 @@ class WhatsProt
                             ));
                     }
                     break;
-                  case "web":
-                      //TODO
+                case "web":
+                      if (($node->getChild(0)->getTag() == 'action') && ($node->getChild(0)->getAttribute('type') == 'sync'))
+                      {
+                            $data = $node->getChild(0)->getChildren();
+                            $this->eventManager()->fire("onWebSync",
+                                array(
+                                    $this->phoneNumber,
+                                    $node->getAttribute('from'),
+                                    $node->getAttribute('id'),
+                                    $data[0]->getData(),
+                                    $data[1]->getData(),
+                                    $data[2]->getData()
+                            ));
+                      }
                     break;
                 default:
                     throw new Exception("Method $type not implemented");

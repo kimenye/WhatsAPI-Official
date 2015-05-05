@@ -111,4 +111,5 @@ abstract class AllEvents
     public function onSendPresence($mynumber, $type, $name ) {}
     public function onSendStatusUpdate($mynumber, $txt ) {}
     public function onStreamError($data) {}
+    public function onWebSync($mynumber, $from, $id, $syncData, $code, $name) {}
 }
