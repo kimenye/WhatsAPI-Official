@@ -70,15 +70,14 @@ class WhatsProt
      *
      * @param string $number
      *   The user phone number including the country code without '+' or '00'.
-     * @param string $identity
-     *  The Device Identity token. Obtained during registration with this API
-     *  or using Missvenom to sniff from your phone.
      * @param string $nickname
      *   The user name.
      * @param $debug
      *   Debug on or off, false by default.
+     * @param string $identityFile
+     *  Path to identity file, overrides default path
      */
-    public function __construct($number, $nickname, $debug = false)
+    public function __construct($number, $nickname, $debug = false, $identityFile = null)
     {
         $this->writer = new BinTreeNodeWriter();
         $this->reader = new BinTreeNodeReader();
@@ -92,7 +91,7 @@ class WhatsProt
             Constants::DATA_FOLDER . DIRECTORY_SEPARATOR,
             $number);
 
-        $this->identity = $this->buildIdentity();
+        $this->identity = $this->buildIdentity($identityFile);
 
         $this->name         = $nickname;
         $this->loginStatus  = Constants::DISCONNECTED_STATUS;
@@ -2243,14 +2242,15 @@ class WhatsProt
     /**
      * Create an identity string
      *
-     * @param  string $identity Identity.
+     * @param  string $identity_file IdentityFile (optional).
      * @return string           Correctly formatted identity
      *
      * @throws Exception        Error when cannot write identity data to file.
      */
-    protected function buildIdentity()
+    protected function buildIdentity($identity_file = null)
     {
-        $identity_file = sprintf('%s%s%sid.%s.dat', __DIR__, DIRECTORY_SEPARATOR, Constants::DATA_FOLDER . DIRECTORY_SEPARATOR, $this->phoneNumber);
+        if (!$identity_file)
+            $identity_file = sprintf('%s%s%sid.%s.dat', __DIR__, DIRECTORY_SEPARATOR, Constants::DATA_FOLDER . DIRECTORY_SEPARATOR, $this->phoneNumber);
 
         if (is_readable($identity_file)) {
             $data = urldecode(file_get_contents($identity_file));
