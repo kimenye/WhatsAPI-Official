@@ -77,7 +77,7 @@ class WhatsProt
      * @param string $identityFile
      *  Path to identity file, overrides default path
      */
-    public function __construct($number, $nickname, $debug = false, $identityFile = null)
+    public function __construct($number, $nickname, $debug = false, $identityFile = false)
     {
         $this->writer = new BinTreeNodeWriter();
         $this->reader = new BinTreeNodeReader();
@@ -2247,9 +2247,9 @@ class WhatsProt
      *
      * @throws Exception        Error when cannot write identity data to file.
      */
-    protected function buildIdentity($identity_file = null)
+    protected function buildIdentity($identity_file = false)
     {
-        if (!$identity_file)
+        if ($identity_file === false)
             $identity_file = sprintf('%s%s%sid.%s.dat', __DIR__, DIRECTORY_SEPARATOR, Constants::DATA_FOLDER . DIRECTORY_SEPARATOR, $this->phoneNumber);
 
         if (is_readable($identity_file)) {
