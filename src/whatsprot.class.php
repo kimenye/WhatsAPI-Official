@@ -2016,7 +2016,6 @@ class WhatsProt
             $this->outputKey = new KeyStream($key[0], $key[1]);
             $this->reader->setKey($this->inputKey);
             //$this->writer->setKey($this->outputKey);
-            $phone = $this->dissectPhone();
             $array = "\0\0\0\0" . $this->phoneNumber . $this->challengeData . time();
             $this->challengeData = null;
             return $this->outputKey->EncodeMessage($array, 0, strlen($array), false);
