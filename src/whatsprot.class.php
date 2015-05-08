@@ -392,6 +392,18 @@ class WhatsProt
         return $response;
     }
 
+    public function update()
+    {
+        $WAData = json_decode(file_get_contents(Constants::WHATSAPP_VER_CHECKER), true);
+        $Waver = $WAData['e'];
+
+        if(Constants::WHATSAPP_VER != $WAver)
+        {
+            updateData('token.php', null, $WAData['h']);
+            updateData('Constants.php', $Waver);
+        }
+    }
+
     /**
      * Connect (create a socket) to the WhatsApp network.
      *
@@ -402,14 +414,6 @@ class WhatsProt
         if ($this->isConnected()) {
             return true;
         }
-
-        //$WAData = json_decode(file_get_contents(Constants::WHATSAPP_VER_CHECKER), true);
-
-        //  if(Constants::WHATSAPP_VER != $WAver)
-        //  {
-        //    updateData('token.php', $WAData->e, $WAData->h);
-        //    updateData('whatsprot.class.php', $WAData->e);
-        //  }
 
         /* Create a TCP/IP socket. */
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);

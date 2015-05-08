@@ -21,6 +21,6 @@ class Constants
     const WHATSAPP_DEVICE = 'S40';                                                           // The device name.
     const WHATSAPP_VER = '2.12.81';                                                          // The WhatsApp version.
     const WHATSAPP_USER_AGENT = 'WhatsApp/2.12.81 S40Version/14.26 Device/Nokia302';         // User agent used in request/registration code.
-    const WHATSAPP_VER_CHECKER = 'https://coderus.openrepos.net/whitesoft/whatsapp_version'; // Check WhatsApp version
+    const WHATSAPP_VER_CHECKER = 'https://coderus.openrepos.net/whitesoft/whatsapp_scratch'; // Check WhatsApp version
 
 }
