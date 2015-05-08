@@ -74,7 +74,7 @@ class WhatsProt
      *   The user name.
      * @param $debug
      *   Debug on or off, false by default.
-     * @param string $identityFile
+     * @param mixed $identityFile
      *  Path to identity file, overrides default path
      */
     public function __construct($number, $nickname, $debug = false, $identityFile = false)
@@ -1504,8 +1504,8 @@ class WhatsProt
     /**
      * Send a read receipt to a message.
      *
-     * @param $to The recipient.
-     * @param $id
+     * @param string $to The recipient.
+     * @param string $id
      */
     public function sendMessageRead($to, $id)
     {
@@ -2248,7 +2248,7 @@ class WhatsProt
     /**
      * Create an identity string
      *
-     * @param  string $identity_file IdentityFile (optional).
+     * @param  mixed $identity_file IdentityFile (optional).
      * @return string           Correctly formatted identity
      *
      * @throws Exception        Error when cannot write identity data to file.
@@ -3401,7 +3401,8 @@ class WhatsProt
     }
 
     /**
-     * @param $node ProtocolNode
+     * @param $node  ProtocolNode
+     * @param $class string
      */
     protected function sendAck($node, $class)
     {
@@ -3853,6 +3854,7 @@ class WhatsProt
      * @param ProtocolNode $node The ProtocolTreeNode that contains the message.
      * @param string       $type
      * @param string       $participant
+     * @param string       $callId
      */
     protected function sendReceipt($node, $type = "read", $participant = null, $callId = null)
     {
@@ -3988,6 +3990,7 @@ class WhatsProt
 
     /**
      * @param ProtocolNode $groupNode
+     * @param string       $fromGetGroups
      */
     protected function handleGroupV2InfoResponse(ProtocolNode $groupNode, $fromGetGroups = false)
     {
