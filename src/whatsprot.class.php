@@ -254,7 +254,10 @@ class WhatsProt
             $this->debugPrint($query);
             $this->debugPrint($response);
 
-            throw new Exception('An error occurred registering the registration code from WhatsApp.');
+            if ($response->reason == 'old_version')
+                $this->update();
+
+            throw new Exception("An error occurred registering the registration code from WhatsApp. Reason: $response->reason");
         } else {
             $this->eventManager()->fire("onCodeRegister",
                 array(
