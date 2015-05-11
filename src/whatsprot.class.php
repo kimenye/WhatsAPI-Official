@@ -248,7 +248,7 @@ class WhatsProt
                     $this->phoneNumber,
                     $response->status,
                     $response->reason,
-                    $response->retry_after
+                    isset($response->retry_after) ? $response->retry_after : null
                 ));
 
             $this->debugPrint($query);
