@@ -398,12 +398,12 @@ class WhatsProt
     public function update()
     {
         $WAData = json_decode(file_get_contents(Constants::WHATSAPP_VER_CHECKER), true);
-        $Waver = $WAData['e'];
+        $WAver = $WAData['e'];
 
         if(Constants::WHATSAPP_VER != $WAver)
         {
             updateData('token.php', null, $WAData['h']);
-            updateData('Constants.php', $Waver);
+            updateData('Constants.php', $WAver);
         }
     }
 
