@@ -2384,7 +2384,7 @@ class WhatsProt
      *  Number to process
      * @return string
      */
-    protected function getJID($number)
+    public function getJID($number)
     {
         if (!stristr($number, '@')) {
             //check if group message
