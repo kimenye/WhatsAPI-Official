@@ -6,6 +6,8 @@ Interface to WhatsApp Messenger
 
 For new WhatsApp updates check **[WhatsApp incoming updates log](https://github.com/mgp25/Chat-API/wiki/WhatsApp-incoming-updates)**
 
+**Do you like this project? Support it by donating BTC** to 1HcEX9foem5atreEg1gbQ6xVeosN5WEcjs ![btc](http://www.montrealbitcoin.com/img/favicon.ico)
+
 ----------
 
 ### Special thanks
@@ -38,3 +40,7 @@ MIT
 - You will NOT use this API for marketing purposes (spam, massive sending...).
 - We do NOT give support to anyone that wants this API to send massive messages or similar.
 - We reserve the right to block any user of this repository that does not meet these conditions.
+
+## Legal
+
+This code is in no way affiliated with, authorized, maintained, sponsored or endorsed by WhatsApp or any of its affiliates or subsidiaries. This is an independent and unofficial API. Use at your own risk.

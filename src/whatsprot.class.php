@@ -904,7 +904,7 @@ class WhatsProt
      */
     public function sendGetPrivacySettings()
     {
-        $msgId = $this->createIqId();
+        $msgId = $this->nodeId['privacy_settings'] = $this->createIqId();
         $privacyNode = new ProtocolNode("privacy", null, null, null);
         $node = new ProtocolNode("iq",
             array(
@@ -958,7 +958,7 @@ class WhatsProt
      */
     public function sendGetProfilePicture($number, $large = false)
     {
-        $msgId = $this->createIqId();
+        $msgId = $this->nodeId['getprofilepic'] = $this->createIqId();
 
         $hash = array();
         $hash["type"] = "image";
@@ -1013,6 +1013,7 @@ class WhatsProt
             ), array($listNode), null);
 
         $this->sendNode($iqNode);
+        $this->waitForServer($msgId);
 
         return true;
     }
@@ -1024,7 +1025,7 @@ class WhatsProt
      */
     public function sendGetRequestLastSeen($to)
     {
-        $msgId = $this->createIqId();
+        $msgId = $this->nodeId['getlastseen'] = $this->createIqId();
 
         $queryNode = new ProtocolNode("query", null, null, null);
 
@@ -1254,17 +1255,20 @@ class WhatsProt
             $children[] = new ProtocolNode("user", array("jid" => $this->getJID($jid)), null, null);
         }
 
+        $iqId = $this->nodeId['getstatuses'] = $this->createIqId();
+
         $node = new ProtocolNode("iq",
             array(
                 "to" => Constants::WHATSAPP_SERVER,
                 "type" => "get",
                 "xmlns" => "status",
-                "id" => $this->createIqId()
+                "id" => $iqId
             ), array(
                 new ProtocolNode("status", null, $children, null)
             ), null);
 
         $this->sendNode($node);
+        $this->waitForServer($iqId);
     }
 
     /**
@@ -2232,7 +2236,7 @@ class WhatsProt
             $this->sendNode($data);
             $this->reader->setKey($this->inputKey);
             $this->writer->setKey($this->outputKey);
-            $this->pollMessage();
+            while (!$this->pollMessage()) {};
         }
 
         if ($this->loginStatus === Constants::DISCONNECTED_STATUS) {
@@ -2404,74 +2408,40 @@ class WhatsProt
      * Retrieves media file and info from either a URL or localpath
      *
      * @param string  $filepath     The URL or path to the mediafile you wish to send
-     * @param integer $maxsizebytes The maximum size in bytes the media file can be. Default 1MB
+     * @param integer $maxsizebytes The maximum size in bytes the media file can be. Default 5MB
      *
      * @return bool  false if file information can not be obtained.
      */
-    protected function getMediaFile($filepath, $maxsizebytes = 1048576)
+    protected function getMediaFile($filepath, $maxsizebytes = 5242880)
     {
         if (filter_var($filepath, FILTER_VALIDATE_URL) !== false) {
             $this->mediaFileInfo = array();
             $this->mediaFileInfo['url'] = $filepath;
 
-            //File is a URL. Create a curl connection but DON'T download the body content
-            //because we want to see if file is too big.
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, "$filepath");
-            curl_setopt($curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11");
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($curl, CURLOPT_HEADER, false);
-            curl_setopt($curl, CURLOPT_NOBODY, true);
+            $media = file_get_contents($filepath);
+            $this->mediaFileInfo['filesize'] = strlen($media);
 
-            if (curl_exec($curl) === false) {
-                return false;
-            }
-
-            //While we're here, get mime type and filesize and extension
-            $info = curl_getinfo($curl);
-            $this->mediaFileInfo['filesize'] = $info['download_content_length'];
-            $this->mediaFileInfo['filemimetype'] = $info['content_type'];
-            $this->mediaFileInfo['fileextension'] = pathinfo(parse_url($this->mediaFileInfo['url'], PHP_URL_PATH), PATHINFO_EXTENSION);
-
-            //Only download file if it's not too big
-            //TODO check what max file size whatsapp server accepts.
             if ($this->mediaFileInfo['filesize'] < $maxsizebytes) {
-                //Create temp file in media folder. Media folder must be writable!
                 $this->mediaFileInfo['filepath'] = tempnam(__DIR__ . DIRECTORY_SEPARATOR . Constants::DATA_FOLDER . DIRECTORY_SEPARATOR . Constants::MEDIA_FOLDER, 'WHA');
-                $fp = fopen($this->mediaFileInfo['filepath'], 'w');
-                if ($fp) {
-                    curl_setopt($curl, CURLOPT_NOBODY, false);
-                    curl_setopt($curl, CURLOPT_BUFFERSIZE, 1024);
-                    curl_setopt($curl, CURLOPT_FILE, $fp);
-                    curl_exec($curl);
-                    fclose($fp);
-                } else {
-                    unlink($this->mediaFileInfo['filepath']);
-                    curl_close($curl);
-                    return false;
-                }
-                //Success
-                curl_close($curl);
+                file_put_contents($this->mediaFileInfo['filepath'], $media);
+                $this->mediaFileInfo['filemimetype']  = get_mime($this->mediaFileInfo['filepath']);
+                $this->mediaFileInfo['fileextension'] = getExtensionFromMime($this->mediaFileInfo['filemimetype']);
                 return true;
             } else {
-                //File too big. Don't Download.
-                curl_close($curl);
                 return false;
             }
         } else if (file_exists($filepath)) {
             //Local file
             $this->mediaFileInfo['filesize'] = filesize($filepath);
             if ($this->mediaFileInfo['filesize'] < $maxsizebytes) {
-                $this->mediaFileInfo['filepath'] = $filepath;
+                $this->mediaFileInfo['filepath']      = $filepath;
                 $this->mediaFileInfo['fileextension'] = pathinfo($filepath, PATHINFO_EXTENSION);
-                $this->mediaFileInfo['filemimetype'] = get_mime($filepath);
+                $this->mediaFileInfo['filemimetype']  = get_mime($filepath);
                 return true;
             } else {
-                //File too big
                 return false;
             }
         }
-        //Couldn't tell what file was, local or URL.
         return false;
     }
 
@@ -2631,6 +2601,9 @@ class WhatsProt
             }
             if ($node->getAttribute("type") == "text" && $node->getChild('body') != null) {
                 $author = $node->getAttribute("participant");
+                if ($autoReceipt) {
+                    $this->sendReceipt($node, $type, $author);
+                }
                 if ($author == "") {
                     //private chat message
                     $this->eventManager()->fire("onGetMessage",
@@ -2645,7 +2618,7 @@ class WhatsProt
                         ));
 
                     if ($this->messageStore !== null) {
-                        $this->messageStore->saveMessage($node->getAttribute('from'), $this->phoneNumber, $node->getChild("body")->getData(), $node->getAttribute('id'), $node->getAttribute('t'));
+                        $this->messageStore->saveMessage(ExtractNumber($node->getAttribute('from')), $this->phoneNumber, $node->getChild("body")->getData(), $node->getAttribute('id'), $node->getAttribute('t'));
                     }
                 } else {
                     //group chat message
@@ -2660,10 +2633,9 @@ class WhatsProt
                             $node->getAttribute("notify"),
                             $node->getChild("body")->getData()
                         ));
-                }
-
-                if ($autoReceipt) {
-                    $this->sendReceipt($node, $type, $author);
+                    if ($this->messageStore !== null) {
+                        $this->messageStore->saveMessage($author, $node->getAttribute('from'), $node->getChild("body")->getData(), $node->getAttribute('id'), $node->getAttribute('t'));
+                    }
                 }
             }
             if ($node->getAttribute("type") == "text" && $node->getChild(0)->getTag() == 'enc') {
@@ -2979,6 +2951,7 @@ class WhatsProt
                             $this->phoneNumber,
                             $blockedJids
                         ));
+                    return;
                 }
                 $this->eventManager()->fire("onGetRequestLastSeen",
                     array(
@@ -2987,7 +2960,6 @@ class WhatsProt
                         $node->getAttribute('id'),
                         $node->getChild(0)->getAttribute('seconds')
                     ));
-                array_push($this->messageQueue, $node);
             }
             if ($node->getChild("props") != null) {
                 //server properties
@@ -3131,12 +3103,20 @@ class WhatsProt
             }
         }
         if ($node->getTag() == "iq" && $node->getAttribute('type') == "error") {
+            $errorType=null;
+            foreach ($this->nodeId AS $type => $nodeID) {
+                if ($nodeID == $node->getAttribute('id')) {
+                    $errorType = $type;
+                    break;
+                }
+            }
             $this->eventManager()->fire("onGetError",
                 array(
                     $this->phoneNumber,
                     $node->getAttribute('from'),
                     $node->getAttribute('id'),
-                    $node->getChild(0)
+                    $node->getChild(0),
+                    $errorType
                 ));
         }
 
@@ -3494,7 +3474,7 @@ class WhatsProt
         if (isset($this->mediaFileInfo['url'])) {
             if ($storeURLmedia) {
                 if (is_file($this->mediaFileInfo['filepath'])) {
-                    rename($this->mediaFileInfo['filepath'], $this->mediaFileInfo['filepath'] . $this->mediaFileInfo['fileextension']);
+                    rename($this->mediaFileInfo['filepath'], $this->mediaFileInfo['filepath'].'.'.$this->mediaFileInfo['fileextension']);
                 }
             } else {
                 if (is_file($this->mediaFileInfo['filepath'])) {

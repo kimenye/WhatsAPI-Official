@@ -18,7 +18,7 @@ $debug = true;
 $username = '34666554433';                      // Telephone number including the country code without '+' or '00'.
 $nickname = 'John Doe';                         // This is the username displayed by WhatsApp clients.
 
-// Create a instance of WhastPort.
+// Create an instance of WhatsProt.
 $w = new WhatsProt($username, $nickname, $debug);
 
 // How to create an account __ONLY__ if you do not have a associated to our phone number.
