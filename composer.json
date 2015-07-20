@@ -1,27 +1,28 @@
 {
-    "name": "mgp25/whatsapi",
-    "description": "The php WhatsApp library ",
+    "name": "whatsapp/chat-api",
+    "version": "2.5.1",
+    "description": "The PHP WhatsApp library",
     "license": "MIT",
     "keywords": [
         "WhatsApp",
-        "WhatsAPI"
+        "WhatsAPI",
+        "Chat-API"
     ],
     "authors": [
         {
             "role": "Contributors",
             "name": "Chat API Contributing Team",
-            "homepage": "https://github.com/mgp25/Chat-API/graphs/contributors"
+            "homepage": "https://github.com/WHAnonymous/Chat-API/graphs/contributors"
         }
     ],
     "support": {
-        "issues": "https://github.com/mgp25/Chat-API/issues",
-        "wiki": "https://github.com/mgp25/Chat-API/wiki",
-        "source": "https://github.com/mgp25/Chat-API"
+        "issues": "https://github.com/WHAnonymous/Chat-API/issues",
+        "wiki": "https://github.com/WHAnonymous/Chat-API/wiki",
+        "source": "https://github.com/WHAnonymous/Chat-API"
     },
     "autoload": {
         "classmap": [
-            "src/",
-            "src/events"
+            "src/"
         ]
     },
     "require": {

@@ -64,6 +64,7 @@ class WhatsProt
     protected $messageStore;
     protected $nodeId = array();
     protected $loginTime;
+    protected $timeout;
     public    $reader;                  // An instance of the BinaryTreeNodeReader class.
 
     /**
@@ -462,6 +463,15 @@ class WhatsProt
     }
 
     /**
+     * Reconnect
+     */
+    public function reconnect()
+    {
+      $this->connect();
+      $this->loginWithPassword($this->password);
+    }
+
+    /**
      * Disconnect from the WhatsApp network.
      */
     public function disconnect()
@@ -558,13 +568,30 @@ class WhatsProt
         $r = array($this->socket);
         $w = array();
         $e = array();
+        $s = socket_select($r, $w, $e, Constants::TIMEOUT_SEC, Constants::TIMEOUT_USEC);
 
-        if (socket_select($r, $w, $e, Constants::TIMEOUT_SEC, Constants::TIMEOUT_USEC)) {
+        if ($s) {
             // Something to read
             if ($stanza = $this->readStanza()) {
                 $this->processInboundData($stanza, $autoReceipt, $type);
                 return true;
             }
+        }
+
+        if ($s == 0)
+        {
+            if (!isset($this->timeout))
+              $this->timeout = time();
+
+            if ((time() - $this->timeout) > 300)
+            {
+              $this->timeout = null;
+              $this->disconnect();
+              throw new ConnectionException('Connectivity error');
+            }
+        }
+        else {
+          $this->timeout = null;
         }
 
         return false;
@@ -1497,7 +1524,6 @@ class WhatsProt
     {
         $bodyNode = new ProtocolNode("body", null, null, $txt);
         $id = $this->sendMessageNode($to, $bodyNode, $id);
-        $this->waitForServer($id);
 
         if ($this->messageStore !== null) {
             $this->messageStore->saveMessage($this->phoneNumber, $to, $txt, $id, time());
@@ -1877,15 +1903,17 @@ class WhatsProt
     public function sendStatusUpdate($txt)
     {
         $child = new ProtocolNode("status", null, null, $txt);
+        $nodeID = $this->createIqId();
         $node = new ProtocolNode("iq",
             array(
                 "to" => Constants::WHATSAPP_SERVER,
                 "type" => "set",
-                "id" => $this->createIqId(),
+                "id" => $nodeID,
                 "xmlns" => "status"
             ), array($child), null);
 
         $this->sendNode($node);
+        $this->waitForServer($nodeID);
         $this->eventManager()->fire("onSendStatusUpdate",
             array(
                 $this->phoneNumber,
@@ -2706,7 +2734,14 @@ class WhatsProt
                                 $node->getChild("media")->getAttribute('vcodec'),
                                 $node->getChild("media")->getAttribute('acodec'),
                                 $node->getChild("media")->getData(),
-                                $node->getChild("media")->getAttribute('caption')
+                                $node->getChild("media")->getAttribute('caption'),
+                                $node->getChild("media")->getAttribute('width'),
+                                $node->getChild("media")->getAttribute('height'),
+                                $node->getChild("media")->getAttribute('fps'),
+                                $node->getChild("media")->getAttribute('vbitrate'),
+                                $node->getChild("media")->getAttribute('asampfreq'),
+                                $node->getChild("media")->getAttribute('asampfmt'),
+                                $node->getChild("media")->getAttribute('abitrate')
                             ));
                     } else {
                         $this->eventManager()->fire("onGetGroupVideo",
@@ -2727,7 +2762,14 @@ class WhatsProt
                                 $node->getChild("media")->getAttribute('vcodec'),
                                 $node->getChild("media")->getAttribute('acodec'),
                                 $node->getChild("media")->getData(),
-                                $node->getChild("media")->getAttribute('caption')
+                                $node->getChild("media")->getAttribute('caption'),
+                                $node->getChild("media")->getAttribute('width'),
+                                $node->getChild("media")->getAttribute('height'),
+                                $node->getChild("media")->getAttribute('fps'),
+                                $node->getChild("media")->getAttribute('vbitrate'),
+                                $node->getChild("media")->getAttribute('asampfreq'),
+                                $node->getChild("media")->getAttribute('asampfmt'),
+                                $node->getChild("media")->getAttribute('abitrate')
                             ));
                     }
                 } elseif ($node->getChild("media")->getAttribute('type') == 'audio') {
@@ -3288,6 +3330,18 @@ class WhatsProt
                                 $node->getAttribute('participant'), //Issuer-JID
                                 $node->getAttribute('notify'),      //Issuer-Name
                                 $promotedJIDs,
+                            )
+                        );
+                    }
+                    else if ($node->hasChild('modify')) {
+                        $this->eventManager()->fire("onGroupsParticipantChangedNumber",
+                            array(
+                                $this->phoneNumber,
+                                $node->getAttribute('from'),
+                                $node->getAttribute('t'),
+                                $node->getAttribute('participant'),
+                                $node->getAttribute('notify'),
+                                $node->getChild(0)->getChild(0)->getAttribute('jid')
                             )
                         );
                     }
