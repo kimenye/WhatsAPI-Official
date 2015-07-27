@@ -1,6 +1,6 @@
 {
     "name": "whatsapp/chat-api",
-    "version": "2.5.1",
+    "version": "2.5.2",
     "description": "The PHP WhatsApp library",
     "license": "MIT",
     "keywords": [
