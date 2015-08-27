@@ -20,7 +20,7 @@ function generateRequestToken($country, $phone)
 
     //  return base64_encode($output);
     $const = 'PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk';
-    $releaseTime = '1435097139726';
+    $releaseTime = '1439921717185';
     $token = md5($const . $releaseTime . $phone);
 
     return $token;
